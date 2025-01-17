@@ -10,7 +10,7 @@ robot = importrobot('abbIrb1600.urdf')
 
 robotRBT = loadrobot("abbIrb1600")
 
-%show(robotRBT);
+show(robotRBT);
 
 
 %task3
@@ -78,9 +78,9 @@ weights = [0 0 0 1 1 1];
 %task7
 
 %Waypoints
-wpts = [1 -0.5 0.7; 0 0.5 -0.7; 1 0.5 0.8; 0 1 0; 1 0 1; 1 3 1];
+wpts = [1 1 1; 0.5 1 1; 0.5 1 0.5]
 
-[q,qd,qdd,tvec,pp] = trapveltraj(wpts,4,'PeakVelocity',0.5,'Acceleration',3)
+[q,qd,qdd,tvec,pp] = trapveltraj(wpts,4,'PeakVelocity',1.0,'Acceleration',5)
 
 
 
