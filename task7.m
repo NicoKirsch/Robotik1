@@ -3,7 +3,7 @@ robotRBT = loadrobot("abbIrb1600");
 homeConfig = robotRBT.homeConfiguration;
 ik = inverseKinematics("RigidBodyTree",robotRBT);
 eeName = 'tool0';
-ikWeights = [0 0 0 1 1 1]; 
+ikWeights = [1 1 1 1 1 1]; 
 ikInitGuess = homeConfig; 
 
 
@@ -12,11 +12,11 @@ numberOfSamples = 50;
 
 % Waypoints definieren
 
-waypoints = [ 0.5  0    0.5;
+waypoints = [ 0.5  0    0.8;
               0.5  0.5  1.2;
               0.5  0    1;
               0.5  -0.5 1.2;
-              0.5  0    0.5]';
+              0.5  0    0.8]';
 
 waypointTimes = 0:4:8:12:20;
 
@@ -37,19 +37,29 @@ hTraj = plot3(waypoints(1,1),waypoints(2,1),waypoints(3,1),'b.-')
 plot3(waypoints(1,:),waypoints(2,:),waypoints(3,:),'ro','LineWidth',2);
 set(hTraj,'xdata',q(1,:),'ydata',q(2,:),'zdata',q(3,:));
 
+jointAngles = zeros(6, numberOfSamples);
 
 %% Trajectory following loop
-for idx = 1:numel(trajTimes)
+for idx = 1:numberOfSamples
     % Solve IK
     tgtPose = trvec2tform(q(:,idx)');
     [config,info] = ik(eeName,tgtPose,ikWeights,ikInitGuess);
     ikInitGuess = config;
+    
+    
+
+    %Gelenkwinkel in Matrize Speichern
+for i = 1:6
+    jointAngles(i, idx) = config(i).JointPosition;
+end
+
 
     % Show the robot
     show(robotRBT,config,'Frames','off','PreservePlot',false);
     title(['Trajectory at t = ' num2str(trajTimes(idx))])
     
-    drawnow    
+    drawnow  
+
 end
 
 hold off;
