@@ -8,7 +8,7 @@ ikInitGuess = homeConfig;
 
 
 
-numberOfSamples = 50;
+numberOfSamples = 500;
 
 % Waypoints definieren
 
@@ -63,3 +63,35 @@ end
 end
 
 hold off;
+
+
+
+
+jointVelocities = diff(jointAngles, 1, 2) ./ (trajTimes(2:end) - trajTimes(1:end-1));
+jointVelocities = [jointVelocities(:, 1), jointVelocities]; % Padding mit erster Spalte
+
+jointAccelerations = diff(jointVelocities, 1, 2) ./ (trajTimes(2:end) - trajTimes(1:end-1));
+jointAccelerations = [jointAccelerations(:, 1), jointAccelerations]; % Padding mit erster Spalte
+
+% Plot joint angles, velocities, and accelerations
+figure;
+subplot(3, 1, 1);
+plot(trajTimes, jointAngles');
+xlabel('Time (s)');
+ylabel('Joint Angles (rad)');
+legend('Joint 1', 'Joint 2', 'Joint 3', 'Joint 4', 'Joint 5', 'Joint 6');
+grid on;
+
+subplot(3, 1, 2);
+plot(trajTimes, jointVelocities');
+xlabel('Time (s)');
+ylabel('Joint Velocities (rad/s)');
+legend('Joint 1', 'Joint 2', 'Joint 3', 'Joint 4', 'Joint 5', 'Joint 6');
+grid on;
+
+subplot(3, 1, 3);
+plot(trajTimes, jointAccelerations');
+xlabel('Time (s)');
+ylabel('Joint Accelerations (rad/s^2)');
+legend('Joint 1', 'Joint 2', 'Joint 3', 'Joint 4', 'Joint 5', 'Joint 6');
+grid on;
