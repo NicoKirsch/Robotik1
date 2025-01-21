@@ -6,13 +6,13 @@ ik = inverseKinematics("RigidBodyTree",robotRBT);
 eeName = 'tool0';
 ikWeights = [1 1 1 1 1 1]; 
 ikInitGuess = homeConfig; 
-numberOfSamples = 510;
+numberOfSamples = 51;
 
 
 %https://blogs.mathworks.com/student-lounge/2019/11/06/robot-manipulator-trajectory/
 T0 = trvec2tform([0.5  0    0.8]);
 Tf = trvec2tform([-0.5  0.8  1.2])*eul2tform([pi/2 0 pi/4],'ZYX');
-tTimes = linspace(0,1,510);
+tTimes = linspace(0,1,51);
 tInterval = [0 5];
 
 %Generierung der Geschwindigkeits und Beschleunigungnsverläufe
