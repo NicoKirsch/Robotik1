@@ -1,65 +1,49 @@
 robot = importrobot('abbIrb1600.urdf')
 robotRBT = loadrobot("abbIrb1600")
-
-%show(robotRBT);
-
 homeConfig = homeConfiguration(robot);
-%task 5
-%inverse Kinematic Berechnung
 
+%inverse Kinematic definieren
 ik = inverseKinematics("RigidBodyTree",robotRBT)
+weights = [0 0 0 1 1 1];
 
+%Positionen definieren
 pos = [-0.3 0.3 1.1];%nicht in einer Singularität
 pos1 = [0.15 0 1.7]; % nahe einer Singularität
 pos2 = [0.15 0 1.787]; % Betriebsanleitung S.57 Position 1
+
+%Transformationsmatrix berechnen
 poseTF = trvec2tform(pos);
 poseTF1 = trvec2tform(pos1);
 poseTF2 = trvec2tform(pos2);
-weights = [0 0 0 1 1 1];
 
-timerVal = 0;
-iterations = 0;
-%Berechnung der Gelenkpositionen
-for i= 1:100
-tic
-[configSoln,solnInfo] = ik("tool0",poseTF,weights,homeConfig);
-timerNow = toc;
-timerVal = timerVal + timerNow;
-iterations = iterations + solnInfo.Iterations;
+% normale Position
+[avgTimerVal, avgIterations] = berechneGelenkpositionen(ik, poseTF, weights, homeConfig);
+fprintf('Durchschnittliche Zeit (normale Position): %f Sekunden\n', avgTimerVal);
+fprintf('Durchschnittliche Iterationen (normale Position): %f\n', avgIterations);
+
+% nahe einer Singularität
+[avgTimerVal1, avgIterations1] = berechneGelenkpositionen(ik, poseTF1, weights, homeConfig);
+fprintf('Durchschnittliche Zeit (nahe einer Singularität): %f Sekunden\n', avgTimerVal1);
+fprintf('Durchschnittliche Iterationen (nahe einer Singularität): %f\n', avgIterations1);
+
+% Singularität
+[avgTimerVal2, avgIterations2] = berechneGelenkpositionen(ik, poseTF2, weights, homeConfig);
+fprintf('Durchschnittliche Zeit (Singularität): %f Sekunden\n', avgTimerVal2);
+fprintf('Durchschnittliche Iterationen (Singularität): %f\n', avgIterations2);
+
+function [avgTimerVal, avgIterations] = berechneGelenkpositionen(ik, poseTF, weights, homeConfig)
+    % berechnet die Gelenkpositionen und gibt die durchschnittliche Zeit und Iterationen zurück.
+    timerVal = 0;
+    iterations = 0;
+    
+    for i = 1:100
+        tic
+        [configSoln, solnInfo] = ik("tool0", poseTF, weights, homeConfig);
+        timerNow = toc;
+        timerVal = timerVal + timerNow;
+        iterations = iterations + solnInfo.Iterations;
+    end
+    
+    avgTimerVal = timerVal / 100;
+    avgIterations = iterations / 100;
 end
-avgTimerVal = timerVal/100 % Durchschnittliche Zeit zur Berechnung der Position
-avgIterations = iterations/100
-
-timerVal1 = 0;
-iterations1 = 0;
-%show(robotRBT,configSoln,PreservePlot=true);
-%Berechnung der Gelenkpositionen
-for i= 1:100
-tic
-[configSoln,solnInfo] = ik("tool0",poseTF1,weights,homeConfig);
-timerNow = toc;
-timerVal1 = timerVal1 + timerNow;
-iterations1 = iterations1 + solnInfo.Iterations;
-end
-avgTimerVal1 = timerVal1/100 % Durchschnittliche Zeit zur Berechnung der Position
-avgIterations1 = iterations1/100
-%show(robotRBT,configSoln,PreservePlot=true);
-
-timerVal2 = 0;
-iterations2 = 0;
-%Berechnung der Gelenkpositionen
-for i= 1:100
-tic
-[configSoln,solnInfo] = ik("tool0",poseTF2,weights,homeConfig);
-timerNow = toc;
-timerVal2 = timerVal2 + timerNow;
-iterations2 = iterations2 + solnInfo.Iterations;
-end
-avgTimerVal2 = timerVal2/100 % Durchschnittliche Zeit zur Berechnung der Position
-avgIterations2 = iterations2/100
-
-zeitlicherMehraufwand = timerVal2/timerVal
-%der zeitliche Mehraufwand beträgt das 13 bis 16 fache an Zeit, wenn der
-%Roboter eine Singularität anfährt(Normal ca.0.012s, Singularität ca.0.18s)
-
-%show(robotRBT,configSoln,PreservePlot=false);
