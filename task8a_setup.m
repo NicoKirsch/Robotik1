@@ -1,19 +1,16 @@
+%%
 robot = importrobot('abbIrb1600.urdf');
 robotRBT = loadrobot("abbIrb1600");
 homeConfig = robotRBT.homeConfiguration;
 ik = inverseKinematics("RigidBodyTree",robotRBT);
 eeName = 'tool0'; 
 ikInitGuess = homeConfig; 
-
-numberOfSamples = 50;
-
-% Waypoints definieren
-
-waypoints = [ 1   1  0.2   1    0.5     -1;
-              -2  0  0.2   1 -0.3    0.5]';
-%Maximale Geschwindigkeit von der langsamsten Achse gewählt in radiant
-%https://library.e.abb.com/public/46ef4d53008c45fb8c6158fc92b3abdd/Datenblatt_IRB1600_lowres.pdf
-[q,qd,qdd,tvec,pp] = trapveltraj(waypoints,numberOfSamples,PeakVelocity=pi);
+numberOfSamples = 51;
+%%
+q = squeeze(out.q);
+qd = squeeze(out.qd);
+qdd = squeeze(out.qdd);
+tvec = out.tvec;
 
 % Set up plot
 show(robotRBT,'Frames','off','PreservePlot',true); 
@@ -24,6 +21,7 @@ config = homeConfig;
 for idx = 1:numberOfSamples
     for i = 1:6
         config(i).JointPosition = q(i,idx);
+        
     end
     show(robotRBT,config,'Frames','off','PreservePlot',false) %Roboter anzeigen
  
@@ -32,6 +30,8 @@ for idx = 1:numberOfSamples
     drawnow 
 end
 hold off;
+
+
 
 figure;
 subplot(3, 1, 1);
