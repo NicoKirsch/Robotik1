@@ -8,9 +8,9 @@ weights = [0 0 0 1 1 1];
 
 %Positionen definieren
 pos = [-0.3 0.3 1.1];%nicht in einer Singularität
-pos1 = [0.15 0 1.7]; % nahe einer Singularität
-pos2 = [0.15 0 1.787]; % Betriebsanleitung S.57 Position 1
-
+pos1 = [0.15 0 1.58]; % nahe einer Singularität
+pos2 = [0.15 0 162]; % Betriebsanleitung S.56 Position 1
+%1627
 %Transformationsmatrix berechnen
 poseTF = trvec2tform(pos);
 poseTF1 = trvec2tform(pos1);

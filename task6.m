@@ -9,13 +9,13 @@ generateIKFunction(analyticalIK,'robotIK');
 
 %Positionen definieren
 eePosition = [-0.3 0.3 1.1];    %normale Position
-eePosition1 = [0.15 0 1.7];     %nahe einer Singularität
-eePosition2 = [0.15 0 1.787];   %Singularität
+eePosition1 = [0.15 0 1.58];     %nahe einer Singularität
+eePosition2 = [0.8150 0 0.9615];   %Singularität
 
 %Transformationsmatrix berechnen
 eePose = trvec2tform(eePosition);
 eePose1 = trvec2tform(eePosition1);
-eePose2 = trvec2tform(eePosition2);
+eePose2 = trvec2tform(eePosition2)*eul2tform([pi pi/2 pi],'ZYX');
 
 %Zeiten messen
 tic
@@ -32,7 +32,7 @@ toc
 fprintf('number of solutions: %f\n', size(ikConfig,1))
 fprintf('number of solutions: %f\n', size(ikConfig1,1))
 fprintf('number of solutions: %f\n', size(ikConfig2,1))
-
+%%
 %Anzeigen der berechneten Konfigurationen
 numSolutions = size(ikConfig, 1);
 for i = 1:numSolutions
@@ -45,5 +45,24 @@ for i = 1:numSolutions
         show(robot, ikConfig(i, :));
     end
 end
+%%
+numSolutions = size(ikConfig1, 1);
+for i = 1:numSolutions
+    if i <= numSolutions / 2
+        subplot(2, numSolutions / 2, i);
+        show(robot, ikConfig1(i, :));
+    else
+        id = i - numSolutions / 2;
+        subplot(2, numSolutions / 2, i); 
+        show(robot, ikConfig1(i, :));
+    end
+end
+%%
+numSolutions = size(ikConfig2, 1);
+numRows = 2; % Anzahl der Zeilen im Subplot-Layout
+numCols = ceil(numSolutions / numRows); % Anzahl der Spalten, aufgerundet
 
-
+for i = 1:numSolutions
+    subplot(numRows, numCols, i);
+    show(robot, ikConfig2(i, :));
+end

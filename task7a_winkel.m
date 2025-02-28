@@ -5,7 +5,7 @@ ik = inverseKinematics("RigidBodyTree",robotRBT);
 eeName = 'tool0'; 
 ikInitGuess = homeConfig; 
 
-numberOfSamples = 50;
+numberOfSamples = 500;
 
 % Waypoints definieren
 

@@ -16,7 +16,7 @@ show(robotRBT);
 %task3
 %home Position 
 homeConfig = homeConfiguration(robot);
-%show(robotRBT, homeConfig)
+show(robotRBT, homeConfig)
 
 randomConfig = randomConfiguration(robot);
 %show(robotRBT, randomConfig)
@@ -24,7 +24,7 @@ randomConfig = randomConfiguration(robot);
 %task4
 
 T_1 = getTransform(robotRBT,homeConfig,"link_1","link_2")
-
+T_1 = getTransform(robotRBT,homeConfig,"tool0","base_link")
 T_2 = getTransform(robotRBT,randomConfig,"link_1","link_2")
 
 %task 5

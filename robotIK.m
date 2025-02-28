@@ -2,7 +2,7 @@ function qOpts = robotIK(eeTform, enforceJointLimits, sortByDistance, referenceC
 %robotIK Function for generating closed-form inverse kinematics solutions to the DH robot given by the parameters specified below
 %   $Revision: $ $Date: $
 %
-%   Generated on 12-Jan-2025 17:00:25
+%   Generated on 28-Feb-2025 15:53:13
 
 
 dhParams = [0.15 -1.5707963267949 0.4865 0;0.475 0 0 0;0 -1.5707963267949 0 0;0 1.5707963267949 0.6 0;0 -1.5707963267949 0 0;0 0 0.0649999999999999 0];
@@ -53,31 +53,31 @@ eeFixedRotation = [1 0 0; 0 cos(eeFixedAlpha) -sin(eeFixedAlpha); 0 sin(eeFixedA
 for jtIdx = 1:size(q123Opts,1)
     % Get the position of the fourth joint at its zero position when the first three joints are positioned for IK
     jt4ZeroPose = getJoint4PoseFromDH(q123Opts(jtIdx,:));
-
+    
     % Compute the rotation matrix needed to get to the end
     % The orientation of the end effector in the world frame can be written:
     %    eeRot = jt4ZeroRot*(Rotation about axes 4-6)*eeFixedRotation
     % Then the goal is to solve for the rotation about the axes and relate them to he known form from the DH parameters, if a valid solution exists:
     %    (Rotation about axes 4-6) = jt4ZeroRot'*eeRot*eeFixedRotation'
     jt4ToEERot = jt4ZeroPose(1:3,1:3)'*eePose(1:3,1:3)*eeFixedRotation';
-
+    
     % This orientation produces at least two configurations for every solution, when joint limits allow
     orientationSolns = convertRotationToZYZAxesAngles(jt4ToEERot, lastThreeAxesSign, shiftedJointLimits(4:6,:));
     q456Opts(jtIdx,:) = orientationSolns(1,:);
     q456Opts(jtIdx + size(q123Opts,1),:) = orientationSolns(2,:);
-
+    
     % Offset theta to reflect the source robot configuration
     q123Opts(jtIdx,:) = q123Opts(jtIdx,:) - thetaOffsets(1:3);
     q456Opts(jtIdx,:) = q456Opts(jtIdx,:) - thetaOffsets(4:6);
     q456Opts(jtIdx + size(q123Opts,1),:) = q456Opts(jtIdx + size(q123Opts,1),:) - thetaOffsets(4:6);
-
+    
     % Remove solutions that violate joint limits
     if enforceJointLimits
         q123Opts(jtIdx,:) = applyJointLimits(q123Opts(jtIdx,:), jointLimits(1:3,:), isJointRevolute(1:3));
         q456Opts(jtIdx,:) = applyJointLimits(q456Opts(jtIdx,:), jointLimits(4:6,:), isJointRevolute(1:3));
         q456Opts(jtIdx + size(q123Opts,1),:) = applyJointLimits(q456Opts(jtIdx + size(q123Opts,1),:), jointLimits(4:6,:), isJointRevolute(1:3));
     end
-
+    
 end
 
 % Filter out any remaining rows with NaNs in them by getting the index of the valid rows and only assembling those in the final output
@@ -106,17 +106,17 @@ end
         %   reference state, referenceConfig, is a Euclidean norm of difference
         %   between a revolute joint's values which is then wrapped to [-pi, pi],
         %   and a displacement between a prismatic joint's values.
-
+        
         %   Copyright 2020 The MathWorks, Inc.
-
+        
         % Compute the distances between each configuration and the reference
         dist = robotics.manip.internal.RigidBodyTreeUtils.distance(...,
             referenceConfig, solutions, isJointRevolute);
-
+        
         % Sort the outputs
         [~, sortedIdx] = sort(dist);
         sortedSolutions = solutions(sortedIdx,:);
-
+        
     end
 
     function validConfig = applyJointLimits(inputConfig, jointLimits, isJointRevolute)
@@ -125,33 +125,33 @@ end
         %   limits, and an N-element vector indicating the joint type (revolute or
         %   prismatic), this function checks whether the configuration is within
         %   the joint limits. If not, the configuration is converted to NaNs.
-
+        
         %   Copyright 2020-2021 The MathWorks, Inc.
-
+        
         % Initialize output
         validConfig = inputConfig;
-
+        
         for i = 1:numel(inputConfig)
             if jointLimits(i,1) > inputConfig(i) || jointLimits(i,2) < inputConfig(i)
-
+                
                 % Compute the offset from the lower joint limit and compare that to
                 % the total range
                 wrappedJointValueOffset = robotics.internal.wrapTo2Pi(inputConfig(i) - jointLimits(i,1));
-
+                
                 % If the wrapped value is 2*pi, make sure it is instead registered
                 % as zero to ensure this doesn't fall outside the range
                 if isEqualWithinTolerance(wrappedJointValueOffset, 2*pi)
                     wrappedJointValueOffset = 0;
                 end
-
+                
                 jointRange = jointLimits(i,2) - jointLimits(i,1);
-
+                
                 if isJointRevolute(i) && ((wrappedJointValueOffset < jointRange) || isEqualWithinTolerance(wrappedJointValueOffset, jointRange))
-
+                    
                     % Make sure the final value is definitively inside the joint
                     % limits if it was on the bound
                     wrappedJointValueOffset = min(wrappedJointValueOffset, jointRange);
-
+                    
                     % Update the configuration
                     validConfig(i) = jointLimits(i,1) + wrappedJointValueOffset;
                 else
@@ -162,7 +162,7 @@ end
                 end
             end
         end
-
+        
     end
 
     function [actAngles, jointsInGimbalLock] = convertRotationToZYZAxesAngles(tgtRotation, axesSign, jointLim)
@@ -182,7 +182,7 @@ end
         %   affected axis.
         %   Copyright 2020 The MathWorks, Inc.
         eulAngles = rotm2eul(tgtRotation, 'ZYZ');
-
+        
         % The jointsInGimalLock variable indicates redundant joints, i.e. joints
         % that complement each other and can have an infinite pair of values in the
         % directJointAngleMaps output. Initialize this value to zeros (no joints in
@@ -193,7 +193,7 @@ end
         % meaning there are an infinite set of solutions. Use a helper function to
         % distribute the values consistently given knowledge of the joint limits.
         if isEqualWithinTolerance(eulAngles(2), 0)
-
+            
             newTgtRotation = tgtRotation;
             newTgtRotation(1:2,3) = 0;
             newTgtRotation(3,1:2) = 0;
@@ -203,7 +203,7 @@ end
             jointsInGimbalLock(variableJtIdx) = [1 1];
             totalRotation = sum(eulAngles(variableJtIdx));
             eulAngles(variableJtIdx) = distributeRotationOverJoints(totalRotation, axesSign(variableJtIdx), jointLim(variableJtIdx,:));
-
+            
             % In this case the alternate Euler angles aren't required, as they will
             % also result in a set of co-axial joints. However, to ensure codegen
             % compatibility, the size must stay the same Therefore, return a set of
@@ -219,7 +219,7 @@ end
             eulAltUnwrapped = eulAltUnwrapped + pi;
             eulAltUnwrapped(:,2) = eulAltUnwrapped(:,2) - pi;
             eulAnglesAlt = robotics.internal.wrapToPi(eulAltUnwrapped);
-
+            
             % Output the angles given the axes signs
             actAngles = [eulAngles; eulAnglesAlt]*diag(axesSign);
         end
@@ -252,25 +252,25 @@ end
         %
         %   If joint limits are ignored, they can be provided as infinite; the
         %   behavior is equivalent. This function returns an N-element row vector.
-
+        
         %   Copyright 2020 The MathWorks, Inc.
-
+        
         % Get the total number of joints from the joint limit input
         N = size(jointLim, 1);
-
+        
         % Initialize the output
         jointAngles = zeros(1,N);
-
+        
         % Remap the joint limits to fit the assumption that all axes are positive.
         % Since the joint limits can contain infinite elements, it is necessary to
         % use element-wise multiplication, as matrix multiplication can result in
         % NaNs when it causes sums of infinities.
         jointLim = repmat(axesSigns(:),1,2).*jointLim;
-
+        
         % Re-order the joint limits to ensure the lower limit always comes first
         % (in case the of a sign flip in the previous line)
         jointLim = sort(jointLim,2);
-
+        
         % Determine the total ranges of each joint. Since all joints are revolute,
         % a range of 2*pi or greater is equivalent to an infinite range as the IK
         % problem does not distinguish between periodic equivalents. Note that a
@@ -284,7 +284,7 @@ end
             % returns a scalar, it is necessary to do this inside a for-loop
             isRevJointFullRange(limIdx) = isRevJointFullRange(limIdx) || isEqualWithinTolerance(jointRange(limIdx), 2*pi);
         end
-
+        
         % There are two primary cases: when some joints have full range, any
         % solution is feasible and the variable values are distributed over these
         % joints. When all of the joints have range of less than 2*pi, the problem
@@ -300,7 +300,7 @@ end
                 jointIdx = jointsWithIncompleteRange(i);
                 jointAngles(jointIdx) = sum(jointLim(jointIdx,:))/2;
             end
-
+            
             % Compute the remaining rotation and wrap it to the interval [-pi, pi],
             % then distribute over the joints with complete range
             wrappedRemainder = robotics.internal.wrapToPi(totalRotation - sum(jointAngles));
@@ -309,7 +309,7 @@ end
                 jointIdx = jointsWithCompleteRange(j);
                 jointAngles(jointIdx) = wrappedRemainder/numel(jointsWithCompleteRange);
             end
-
+            
         else
             % Use an algorithm that favors loading distal joints, which are
             % typically easier to change: first set all the joints to their
@@ -317,10 +317,10 @@ end
             % moving each joint up or down based on the difference in the current
             % total from the desired total, until the desired total is reached.
             % This is essentially a cascaded bang-bang controller.
-
+            
             % Initialize the joint angles to their mid-range values
             jointAngles(:) = (sum(jointLim,2)/2)';
-
+            
             % Iterate over the joints, using a feedback law to move them closer
             % to the desired total
             jointIdxVector = N:-1:1;
@@ -329,7 +329,7 @@ end
                 diffRotation = robotics.internal.wrapToPi(wrappedTotalRotation - sum(jointAngles));
                 jointAngles(jointIdx) = jointAngles(jointIdx) + sign(diffRotation)*min(abs(diffRotation), jointRange(jointIdx)/2);
             end
-
+            
             % Check if the sum of the joint angles reaches the desired total. If
             % not, the solution is infeasible and a vector of NaNs is returned.
             if ~isEqualWithinTolerance(robotics.internal.wrapToPi(sum(jointAngles)), wrappedTotalRotation)
@@ -337,11 +337,11 @@ end
                 return;
             end
         end
-
+        
         % Factor back in the axes signs. Since all valid joint angles are finite,
         % matrix multiplication is the most efficient approach.
         jointAngles = jointAngles*diag(axesSigns);
-
+        
     end
 
 end
@@ -427,7 +427,7 @@ for theta3Idx = 1:8
         possThetas(theta3Idx,:) = [NaN NaN NaN];
         continue
     end
-
+    
     % Compute key subexpressions f1 to f3 and F1 to F4, which are functions of theta3
     f = computef13SupportingEquations(a3, alpha3, d3, d4, theta3);
     F = computeF14SupportingEquations(a1, a2, alpha1, alpha2, f(1), f(2), f(3), d2);
@@ -439,14 +439,14 @@ for theta3Idx = 1:8
     % compute all solutions and filter at the end, we filter here
     % by always solving using two different equations. Then we
     % choose only the solution that satisfies both equations.
-
+    
     % Since a1 and sin(alpha1) are both nonzero, solve for theta2 using equation 3.25 and 3.26
     theta2Opts = solveTrigEquations(F(1)*2*a1, F(2)*2*a1, R3 - F(3));
     theta2Constraint = solveTrigEquations(-F(2)*sin(alpha1), F(1)*sin(alpha1), z - F(4));
-
+    
     % Choose the solution(s) that solve both equations
     theta2 = chooseCorrectSolution(theta2Opts, theta2Constraint, 1.000000e-06);
-
+    
     % Theta2 is a 2-element vector with up to two valid solutions (invalid
     % solutions are represented by NaNs). Iterate over the possible values
     % and add the second solution set in the latter half of the matrix (so
@@ -454,36 +454,36 @@ for theta3Idx = 1:8
     for theta2Idx = 1:2
         % Update the local index so it's reflective of the indexed value of theta2
         solIdx = theta3Idx + 8*(theta2Idx-1);
-
+        
         % Update the value of theta3 in case it was previously set to NaN,
         % and replace any invalid values of theta2 with NaN
         possThetas(solIdx,3) = theta3;
         possThetas(solIdx,2) = replaceImagWithNaN(theta2(theta2Idx));
-
+        
         % If any of the joint variables in NaN, replace it and all the
         % remaining joints to solve with NaNs and move on to the next loop
         if isnan(possThetas(solIdx, 2))
             possThetas(solIdx, 1:2) = [NaN NaN];
             continue;
         end
-
+        
         % Compute theta1 from the first two elements of eq 3.20
         g = computeg12SupportingEquations(a1, a2, alpha1, alpha2, f(1), f(2), f(3), d2, theta2(theta2Idx));
         theta1Opts = solveTrigEquations(g(1), g(2), jt5Pos(1));
         theta1Constraint = solveTrigEquations(-g(2), g(1), jt5Pos(2));
         theta1Opts = chooseCorrectSolution(theta1Opts, theta1Constraint, 1.000000e-06);
-
+        
         % Since theta1 is the last value that is solved for, only one
         % of the solutions will be valid, and chooseCorrectSolution
         % sorts the results so that if there is only one solution, it
         % is always the first element (and the other element is nan)
         theta1 = theta1Opts(1);
-
+        
         % Update the array of possible theta values
         possThetas(solIdx,1) = replaceImagWithNaN(theta1);
-
+        
     end
-
+    
 end
 
 % Now we are left with an 8x3 matrix where some values are NaN. The
@@ -499,23 +499,23 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
         %   where Ti represent transformation matrices associated with links. Then
         %   this equation may be rewritten as P = T1*T2*f. This function computes
         %   the values of f that satisfy the rewritten equation.
-
+        
         %   Copyright 2020 The MathWorks, Inc.
-
+        
         % Initialize output
         f = zeros(3,1);
-
+        
         % Compute component terms
         t2 = sin(alpha3);
         t3 = cos(theta3);
         t4 = sin(theta3);
-
+        
         % Assemble outputs. Note that there is technically a fourth output, f(4) =
         % 1, but its value is unused, so it is not computed or returned.
         f(1) = a3.*t3+s4.*t2.*t4;
         f(2) = a3.*t4-s4.*t2.*t3;
         f(3) = s3 + s4.*cos(alpha3);
-
+        
     end
 
 
@@ -526,35 +526,35 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
         %   (and constant parameters). The function accepts several DH parameters,
         %   as well as the intermediate variables f1 to f3, which are functions of
         %   theta3, and outputs the four F1 to F4 intermediate variables.
-
+        
         %   Copyright 2020 The MathWorks, Inc.
-
+        
         % Initialize output
         F = zeros(1,4);
-
+        
         F(1) = a2+f1;
-
+        
         t2 = cos(alpha2);
         t3 = sin(alpha2);
         F(2) = -f2.*t2+f3.*t3;
-
+        
         t4 = f3.*t2;
         t5 = f2.*t3;
         F(3) = s2.*(t4+t5).*2.0+a2.*f1.*2.0+a1.^2+a2.^2+f1.^2+f2.^2+f3.^2+s2.^2;
-
+        
         F(4) = cos(alpha1).*(s2+t4+t5);
-
+        
     end
 
     function g = computeg12SupportingEquations(a1,a2,alpha1,alpha2,f1,f2,f3,s2,theta2)
         %computeg12SupportingEquations Compute g1 and g2 supporting equations
         %   This function computes g1 and g2, which are functions of theta2 and
         %   theta3.
-
+        
         %   Copyright 2020 The MathWorks, Inc.
         % Initialize output
         g = zeros(1,2);
-
+        
         % Compute component terms
         t2 = cos(alpha1);
         t3 = cos(alpha2);
@@ -566,11 +566,11 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
         t9 = f3.*t4;
         t10 = -t9;
         t11 = t8+t10;
-
+        
         % Assemble outputs
         g(1) = a1+t5.*t7-t6.*t11;
         g(2) = sin(alpha1).*(s2+f2.*t4+f3.*t3)-t2.*t6.*t7-t2.*t5.*t11;
-
+        
     end
 
 
@@ -579,9 +579,9 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
         %   This function solves the common trigonometric equality by equating the
         %   solution to cos(phi)sin(theta) + sin(phi)cos(theta) = sin(phi + theta).
         %   The function returns two possible solutions for theta.
-
+        
         %   Copyright 2020 The MathWorks, Inc.
-
+        
         theta = nan(1,2);
         % Handle the trivial case
         if isEqualWithinTolerance(a,0) && isEqualWithinTolerance(b,0) && isEqualWithinTolerance(c,0)
@@ -600,7 +600,7 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
             theta(1) = real(asin(complex(cPrime))) - phi1;
             theta(2) = -real(asin(complex(cPrime))) - phi2;
         end
-
+        
     end
 
     function correctSolution = chooseCorrectSolution(solutionPair1, solutionPair2, solTolerance)
@@ -613,9 +613,9 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
         %   solution both of the source equation, as well as a constraint equation
         %   for the same problem. This helper simply chooses the value that occurs
         %   in both the original and constraint solutions, within a tolerance.
-
+        
         %   Copyright 2020 The MathWorks, Inc.
-
+        
         % Filter any imaginary values out of the solution pairs by replacing them
         % with NaNs
         realSolutionPair1 = zeros(1,2);
@@ -625,7 +625,7 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
             realSolutionPair1(i) = robotics.internal.wrapToPi(replaceImagWithNaN(solutionPair1(i)));
             realSolutionPair2(i) = robotics.internal.wrapToPi(replaceImagWithNaN(solutionPair2(i)));
         end
-
+        
         % To check equivalence, it's insufficient to just check whether the values
         % are equal, because they are periodic. For example, -pi and pi are both
         % valid outcomes of wrapToPi that fail a basic equality test but are
@@ -640,11 +640,11 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
                 end
             end
         end
-
+        
         % Sort the output so that if there is one correct solution it is always in
         % the first element slot
         correctSolution = sort(correctSolution);
-
+        
     end
 
     function q = replaceImagWithNaN(qToCheck)
@@ -653,9 +653,9 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
         %   the element is part of a matrix, and rendering one element of the
         %   matrix imaginary will make the entire matrix imaginary. Furthermore, it
         %   may be used to filter invalid solutions.
-
+        
         %   Copyright 2020 The MathWorks, Inc.
-
+        
         if isempty(qToCheck)
             q = NaN;
         elseif ~isEqualWithinTolerance(imag(qToCheck), 0)
@@ -663,7 +663,7 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
         else
             q = real(qToCheck);
         end
-
+        
     end
 
     function [hSolns, hasFiniteNumSol, hasPiSoln] = solveForHGeneralCase(R3, z3, a1, a2, a3, alpha1, alpha2, alpha3, d2, d3, d4)
@@ -685,9 +685,9 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
         %   reparameterized in h, producing a quartic polynomial in h. This
         %   function solves that polynomial for the values of h given R3, z3, and
         %   the DH parameters of the associated serial manipulator.
-
+        
         %   Copyright 2020 The MathWorks, Inc.
-
+        
         % Compute the polynomial coefficients
         [A,B,C,D,E] = getQuarticPolynomialCoeffs(R3, z3, ...
             a1, a2, a3, ...
@@ -711,24 +711,24 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
             % below by using constraint equations.
             hSolns = solveQuarticPolynomial([A B C D E]);
             hasFiniteNumSol = true;
-
+            
             fTerms = computef13SupportingEquations(a3, alpha3, d3, d4, pi);
             FTerms = computeF14SupportingEquations(a1, a2, alpha1, alpha2, fTerms(1), fTerms(2), fTerms(3), d2);
-
+            
             % Check if there is a solution at theta3 = pi, for which h is undefined, by
             % checking if R3 = F3 (eq 3.25) is satisfied for that solution.
             eq339LHS = (FTerms(4) - z3)^2/sin(alpha1)^2 + (FTerms(3) - R3)^2/(4*a1^2);
             eq339RHS = FTerms(1)^2 + FTerms(2)^2;
             hasPiSoln = isEqualWithinTolerance(eq339LHS, eq339RHS);
         end
-
+        
         % Helper functions
         function [h4Coef, h3Coef, h2Coef, h1Coef, h0Coef] = getQuarticPolynomialCoeffs(R3s,z3s,a1,a2,a3,alpha1,alpha2,alpha3,d2,d3,d4)
             %getQuarticPolynomialCoeffs Compute the coefficients of the quartic polynomial
             %   The first part of the solution is a fourth-order polynomial in h =
             %   tan(theta3/2). This function computes the coefficients of that
             %   polynomial, A*h^4 + B*h^3 + C*h^2 + D*h + E = 0.
-
+            
             %Polynomial coefficients for DH robot
             t2 = cos(alpha1);
             t3 = cos(alpha2);
@@ -932,7 +932,7 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
             t192 = -t175;
             t202 = -t195;
             t203 = -t196;
-
+            
             h4Coef = t37+t38+t39+t40+t41+t42+t43+t44-t48-t49+t53-t54-t55+t58+t59+t60+t61+t62+t63+t66+t67+t68+t69+t70+t71+t72+t73+t74+t75+t78+t79+t82+t83+t84+t85-t86-t87+t88+t89+t90-t92+t96+t100+t101+t102+t103+t104+t105+t109+t111-t112+t113+t117+t125-t126+t127-t128+t129+t130+t131-t132+t133+t134+t135+t136+t140+t141+t144+t145+t146+t147+t149+t150+t151+t152+t153+t154+t155+t156+t158+t160+t161+t162+t165+t166+t167+t168+t169+t170+t172+t177+t178+t184+t185+t188+t189+t190+t191+t192+t193+t194+t197+t198+t199+t200+t201+t202+t203;
             if nargout > 1
                 h3Coef = t93+t94+t95+t97+t98+t99+t106+t107+t108+t116+t118+t119+t121-t122+t123-t124+t138+t139+t142+t143+t157+t159+t163+t164+t171+t173+t176+t179+t180+t181+t182+t183+t186+t187-a3.*d4.*t7.*t9.*t28.*t32.*1.6e+1;
@@ -958,9 +958,9 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
         %   Reference:
         %       Weisstein, Eric W. "Quartic Equation." From MathWorld--A
         %       Wolfram Web Resource. https://mathworld.wolfram.com/QuarticEquation.html
-
+        
         %   Copyright 2020 The MathWorks, Inc.
-
+        
         % Analytical methods are not robust to division by zero, so filter out
         % cases that are actually linear, quadratic, or cubic
         isCoeffZero = [...
@@ -970,7 +970,7 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
             isEqualWithinTolerance(polyCoeffs(4),0) ...
             isEqualWithinTolerance(polyCoeffs(5),0) ...
             ];
-
+        
         if all(isCoeffZero)
             % All coefficients are zero. This is a trivial solution; output zero
             polySolns = 0;
@@ -989,7 +989,7 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
             polySolns = solveCubicPolynomial(polyCoeffs(3)/polyCoeffs(2), polyCoeffs(4)/polyCoeffs(2), polyCoeffs(5)/polyCoeffs(2));
         else
             % This problem is quartic
-
+            
             % Rewrite in standard polynomial form. Be sure to use different
             % variables than are used elsewhere in code, as this may otherwise
             % create global variables that corrupt data in other parts of the
@@ -998,10 +998,10 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
             polyA1 = polyCoeffs(4)/polyCoeffs(1);
             polyA2 = polyCoeffs(3)/polyCoeffs(1);
             polyA3 = polyCoeffs(2)/polyCoeffs(1);
-
+            
             % Compute a real solution to the resolvent cubic polynomial
             cubicRoots = solveCubicPolynomial(-polyA2, polyA1*polyA3 - 4*polyA0, 4*polyA2*polyA0- polyA1^2 - polyA3^2*polyA0);
-
+            
             % Select a real-valued root
             resCubicRealRoot = cubicRoots(1);
             for i = 1:3
@@ -1010,13 +1010,13 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
                     continue;
                 end
             end
-
+            
             % To minimize code generation issues, declare contents of the square
             % roots to be complex to avoid unexpected complex terms
-
+            
             % Compute supporting elements
             R = sqrt(complex(1/4*polyA3^2 - polyA2 + resCubicRealRoot));
-
+            
             if isEqualWithinTolerance(R, 0)
                 D = sqrt(complex(3/4*polyA3^2 - 2*polyA2 + 2*sqrt(resCubicRealRoot^2 - 4*polyA0)));
                 E = sqrt(complex(3/4*polyA3^2 - 2*polyA2 - 2*sqrt(resCubicRealRoot^2 - 4*polyA0)));
@@ -1024,7 +1024,7 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
                 D = sqrt(complex(3/4*polyA3^2 - R^2 - 2*polyA2 + 1/4*(4*polyA3*polyA2 - 8*polyA1 - polyA3^3)/R));
                 E = sqrt(complex(3/4*polyA3^2 - R^2 - 2*polyA2 - 1/4*(4*polyA3*polyA2 - 8*polyA1 - polyA3^3)/R));
             end
-
+            
             % Assemble the four solutions
             polySolns = [...
                 -1/4*polyA3 + 1/2*R + 1/2*D; ...
@@ -1032,19 +1032,19 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
                 -1/4*polyA3 - 1/2*R + 1/2*E; ...
                 -1/4*polyA3 - 1/2*R - 1/2*E];
         end
-
-
+        
+        
         function cubicRoots = solveCubicPolynomial(b2, b1, b0)
             %solveCubicPolynomial Solve for a real-valued root to a cubic polynomial
             %   This function solves for a real root of the cubic polynomial in
             %   the form x^3 + b2*x^2 + b1*x + b0 = 0. This type of polynomial
             %   has three roots, two of which may be complex.
-
+            
             % Use Cardano's formula
             cubicQ = (3*b1 - b2^2)/9;
             cubicR = (9*b2*b1 - 27*b0 - 2*b2^3)/54;
             cubicD = cubicQ^3 + cubicR^2;
-
+            
             % Make sure to call square roots with sqrt(complex()) to ensure
             % code generation support when numbers are negative
             if cubicD < 0
@@ -1056,7 +1056,7 @@ outputThetas = possThetas(all(~isnan(possThetas),2),:);
                 cubicS = nthroot((cubicR + sqrt(cubicD)),3);
                 cubicT = nthroot((cubicR - sqrt(cubicD)),3);
             end
-
+            
             cubicRoots = [...
                 -1/3*b2 + (cubicS + cubicT); ...
                 -1/3*b2 - 1/2*(cubicS + cubicT) + 1/2*1i*sqrt(3)*(cubicS - cubicT); ...
@@ -1079,10 +1079,10 @@ for i = 1:3
     alpha = dhParams(i,2);
     d = dhParams(i,3);
     theta = q123(i);
-
+    
     Ttheta = [cos(theta) -sin(theta) 0 0; sin(theta) cos(theta) 0 0; 0 0 1 0; 0 0 0 1];
     TFixed = [1 0 0 a; 0 cos(alpha) -sin(alpha) 0; 0 sin(alpha) cos(alpha) d; 0 0 0 1];
-
+    
     jt4Pose = jt4Pose*Ttheta*TFixed;
 end
 
