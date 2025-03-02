@@ -19,7 +19,7 @@ homeConfig = homeConfiguration(robot);
 show(robotRBT, homeConfig)
 
 randomConfig = randomConfiguration(robot);
-%show(robotRBT, randomConfig)
+show(robotRBT, randomConfig)
 
 %task4
 
