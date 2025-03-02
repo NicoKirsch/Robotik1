@@ -2,7 +2,7 @@ function qOpts = robotIK(eeTform, enforceJointLimits, sortByDistance, referenceC
 %robotIK Function for generating closed-form inverse kinematics solutions to the DH robot given by the parameters specified below
 %   $Revision: $ $Date: $
 %
-%   Generated on 28-Feb-2025 15:53:13
+%   Generated on 01-Mar-2025 17:45:00
 
 
 dhParams = [0.15 -1.5707963267949 0.4865 0;0.475 0 0 0;0 -1.5707963267949 0 0;0 1.5707963267949 0.6 0;0 -1.5707963267949 0 0;0 0 0.0649999999999999 0];
