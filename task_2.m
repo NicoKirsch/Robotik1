@@ -10,13 +10,13 @@ robot = importrobot('abbIrb1600.urdf')
 
 robotRBT = loadrobot("abbIrb1600")
 
-show(robotRBT);
+%show(robotRBT);
 
 
 %task3
 %home Position 
 homeConfig = homeConfiguration(robot);
-show(robotRBT, homeConfig)
+%show(robotRBT, homeConfig)
 
 randomConfig = randomConfiguration(robot);
 show(robotRBT, randomConfig)
