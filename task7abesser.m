@@ -59,6 +59,10 @@ for idx = 1:numberOfSamples
     end  
     
     show(robot, config, 'Frames', 'off', 'PreservePlot', false);  
+
+    pointsToTravel = getTransform(robotRBT,config,"tool0","base_link"); %Endeffektor Punkte anzeigen
+    plot3(pointsToTravel(1,4),pointsToTravel(2,4),pointsToTravel(3,4),'r.','LineWidth',1);
+    
     title(['Trajectory at t = ' num2str(trajTimes(idx))]);  
     drawnow;  
 end  
