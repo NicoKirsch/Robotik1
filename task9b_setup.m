@@ -1,12 +1,12 @@
 %%Erst diese Section ausführen, dann Simulink ausführen, dann fortfahren
-robot = importrobot('abbIrb1600.urdf');
+%robot = importrobot('abbIrb1600.urdf');
 robotRBT = loadrobot("abbIrb120");
 tInterval = [0 10];
 
 homeConfig = robotRBT.homeConfiguration;
 config = homeConfig;
 numberOfSamples = 198;%51;
-
+%%
 %%3D Animation
 % Set up plot
 show(robotRBT,'Frames','off','PreservePlot',true); 
@@ -23,7 +23,9 @@ for idx = 1:numberOfSamples
         jointAngles(i, idx) = config(i).JointPosition;
     end
 
-    show(robotRBT,config,'Frames','off','PreservePlot',false)  
+    show(robotRBT,config,'Frames','off','PreservePlot',false)
+    pointsToTravel = getTransform(robotRBT,config,"tool0","base_link"); %Endeffektor Punkte anzeigen
+    plot3(pointsToTravel(1,4),pointsToTravel(2,4),pointsToTravel(3,4),'r.','LineWidth',1); 
     drawnow  
     pause(0.01);
 end

@@ -1,6 +1,6 @@
 %%
 %robot = importrobot('abbIrb1600.urdf');
-robotRBT = loadrobot("abbIrb1600"); % abbIrb1600/abbIrb120
+robotRBT = loadrobot("abbIrb120"); % abbIrb1600/abbIrb120
 homeConfig = robotRBT.homeConfiguration;
 ik = inverseKinematics("RigidBodyTree",robotRBT);
 eeName = 'tool0'; 
