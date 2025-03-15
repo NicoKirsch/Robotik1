@@ -10,8 +10,9 @@ numberOfSamples = 51;
 %https://blogs.mathworks.com/student-lounge/2019/11/06/robot-manipulator-trajectory/
 %T0 = trvec2tform([0.5  0    0.8]);
 T0 = trvec2tform([0.8150  0    1.2615])*eul2tform([pi pi/2 pi],'ZYX');
-%Tf = trvec2tform([-0.5  0.8  1.2])*eul2tform([pi/2 0 pi/4],'ZYX');
-Tf = trvec2tform([0.8150 0 0.6615])*eul2tform([pi pi/2 pi],'ZYX');%[0.8150 0 0.9615]
+Tf = trvec2tform([-0.5  0.8  1.2])*eul2tform([pi/2 0 pi/4],'ZYX');
+%Tf = trvec2tform([0.8150 0 0.6615])*eul2tform([pi pi/2 pi],'ZYX');%[0.8150
+%0 0.9615]//singularität
 tTimes = linspace(0,1,51);
 tInterval = [0 5];
 

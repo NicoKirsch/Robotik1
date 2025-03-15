@@ -9,8 +9,14 @@ numberOfSamples = 198;%51;
 %%
 %%3D Animation
 % Set up plot
-show(robotRBT,'Frames','off','PreservePlot',true); 
-xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
+
+
+
+%show(robotRBT,'Frames','off','PreservePlot',true); 
+%xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
+
+
+
 hold on; % Hold the plot to add robot visualization
 
 jointAngles = zeros(6, numberOfSamples);
@@ -25,7 +31,7 @@ for idx = 1:numberOfSamples
 
     show(robotRBT,config,'Frames','off','PreservePlot',false)
     pointsToTravel = getTransform(robotRBT,config,"tool0","base_link"); %Endeffektor Punkte anzeigen
-    plot3(pointsToTravel(1,4),pointsToTravel(2,4),pointsToTravel(3,4),'r.','LineWidth',1); 
+    plot3(pointsToTravel(1,4),pointsToTravel(2,4),pointsToTravel(3,4),'b.','LineWidth',1); 
     drawnow  
     pause(0.01);
 end

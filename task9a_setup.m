@@ -5,7 +5,7 @@ homeConfig = robotRBT.homeConfiguration;
 ik = inverseKinematics("RigidBodyTree",robotRBT);
 eeName = 'tool0'; 
 ikInitGuess = homeConfig; 
-numberOfSamples = 100;%51;
+numberOfSamples = 200;%51;
 %%
 
 
@@ -20,7 +20,7 @@ qd = qd_lang(:, 1:step:end);
 qdd = qdd_lang(:, 1:step:end);
 
 % Set up plot
-show(robotRBT,'Frames','off','PreservePlot',true); 
+show(robotRBT,'Frames','off','PreservePlot',false); 
 xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
 hold on; 
 config = homeConfig;
@@ -39,7 +39,7 @@ end
 hold off;
 
 
-
+%%
 figure;
 subplot(3, 1, 1);
 plot(tvec, q_lang);
@@ -61,3 +61,24 @@ xlabel('Time (s)');
 ylabel('Joint Accelerations (rad/s^2)');
 legend('Joint 1', 'Joint 2', 'Joint 3', 'Joint 4', 'Joint 5', 'Joint 6');
 grid on;
+
+
+%%
+config = homeConfig;
+config(1).JointPosition =1;
+config(2).JointPosition =1;
+config(3).JointPosition =0.2;
+config(4).JointPosition =1;
+config(5).JointPosition =0.5;
+config(6).JointPosition =-1;
+
+config1 = homeConfig;
+config1(1).JointPosition =-2;
+config1(2).JointPosition =0;
+config1(3).JointPosition =0.2;
+config1(4).JointPosition =1;
+config1(5).JointPosition =-0.3;
+config1(6).JointPosition =0.5;
+
+start = getTransform(robotRBT,config,"tool0","base_link")
+ende = getTransform(robotRBT,config1,"tool0","base_link")

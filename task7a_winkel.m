@@ -5,18 +5,22 @@ ik = inverseKinematics("RigidBodyTree",robotRBT);
 eeName = 'tool0'; 
 ikInitGuess = homeConfig; 
 
-numberOfSamples = 50;
+numberOfSamples = 500;
 
 % Waypoints definieren
 
-waypoints = [ 1   1  0.2   1    0.5     -1;
-              -2  0  0.2   1 -0.3    0.5]';
+%waypoints = [ 1   1  0.2   1    0.5     -1;
+%              -2  0  0.2   1 -0.3    0.5]';
+
+waypoints = [ 0   0.1796  -0.7180   0    0.5284     0;
+              2.1696  0.676  -1.1939   -2.5179 1.5671    2.3713]';
+
 %Maximale Geschwindigkeit von der langsamsten Achse gewählt in radiant
 %https://library.e.abb.com/public/46ef4d53008c45fb8c6158fc92b3abdd/Datenblatt_IRB1600_lowres.pdf
 [q,qd,qdd,tvec,pp] = trapveltraj(waypoints,numberOfSamples,PeakVelocity=pi);
-
+%%
 % Set up plot
-show(robotRBT,'Frames','off','PreservePlot',true); 
+%show(robotRBT,'Frames','off','PreservePlot',true); 
 xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
 hold on; 
 config = homeConfig;
@@ -28,11 +32,11 @@ for idx = 1:numberOfSamples
     show(robotRBT,config,'Frames','off','PreservePlot',false) %Roboter anzeigen
  
     pointsToTravel = getTransform(robotRBT,config,"tool0","base_link"); %Endeffektor Punkte anzeigen
-    plot3(pointsToTravel(1,4),pointsToTravel(2,4),pointsToTravel(3,4),'r.','LineWidth',1);
+    plot3(pointsToTravel(1,4),pointsToTravel(2,4),pointsToTravel(3,4),'b.','LineWidth',1);
     drawnow 
 end
 hold off;
-
+%%
 figure;
 subplot(3, 1, 1);
 plot(tvec, q);
