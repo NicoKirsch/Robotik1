@@ -34,7 +34,7 @@ hold on;
 % Plot JointSpace
 config = homeConfig;
 
-for idx = 1:numberOfSamples
+for idx = 1:JnumberOfSamples
     for i = 1:6
         config(i).JointPosition = q(i,idx);
 
@@ -49,7 +49,7 @@ end
 show(robotRBT,homeConfig,'PreservePlot',false,'Frames','off');
 config = homeConfig;
 % Plot TaskSpace
-for idx = 1:numberOfSamples
+for idx = 1:TnumberOfSamples
 
     for i = 1:6
         config(i).JointPosition = q_T(i,idx);
