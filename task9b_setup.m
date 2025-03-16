@@ -12,8 +12,8 @@ numberOfSamples = 198;%51;
 
 
 
-%show(robotRBT,'Frames','off','PreservePlot',true); 
-%xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
+show(robotRBT,'Frames','off','PreservePlot',true); 
+xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
 
 
 

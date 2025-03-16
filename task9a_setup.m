@@ -1,10 +1,10 @@
-%%
+%%Erst diese Section ausführen, dann Simulink ausführen, dann fortfahren
 %robot = importrobot('abbIrb1600.urdf');
 robotRBT = loadrobot("abbIrb120"); % abbIrb1600/abbIrb120
 homeConfig = robotRBT.homeConfiguration;
-ik = inverseKinematics("RigidBodyTree",robotRBT);
-eeName = 'tool0'; 
-ikInitGuess = homeConfig; 
+%%ik = inverseKinematics("RigidBodyTree",robotRBT);
+%%eeName = 'tool0'; 
+%%ikInitGuess = homeConfig; 
 numberOfSamples = 200;%51;
 %%
 
