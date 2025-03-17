@@ -1,18 +1,24 @@
-%%
+%Erst diese Section ausführen, dann Simulink ausführen, dann fortfahren
+%% 1️⃣ Roboter importieren & inverse Kinematik vorbereiten
 robot = importrobot('abbIrb1600.urdf');
-robotRBT = loadrobot("abbIrb120");
+robotRBT = loadrobot("abbIrb1600");
 homeConfig = robotRBT.homeConfiguration;
 ik = inverseKinematics("RigidBodyTree",robotRBT);
 eeName = 'tool0'; 
 ikInitGuess = homeConfig; 
 numberOfSamples = 51;
-%%
+
+waypoints = [ 0   0.1796  -0.7180   0    0.5284     0;
+              2.1696  0.676  -1.1939   -2.5179 1.5671    2.3713]';
+
+
+%%  2️⃣ Übergabe der Simulink Parameter
 q = squeeze(out.q);
 qd = squeeze(out.qd);
 qdd = squeeze(out.qdd);
 tvec = out.tvec;
 
-% Set up plot
+%% 3️⃣ 3D Darstellung beider Bahnkurven
 show(robotRBT,'Frames','off','PreservePlot',true); 
 xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
 hold on; 
@@ -31,7 +37,7 @@ for idx = 1:numberOfSamples
 end
 hold off;
 
-
+%% 4️⃣ Gelenkwinkel, -geschwindigkeit & -beschleunigung plotten
 
 figure;
 subplot(3, 1, 1);

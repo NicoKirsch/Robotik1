@@ -1,3 +1,4 @@
+%% 1️⃣ task6
 robot = importrobot('abbIrb1600.urdf')
 type abbIrb1600.urdf
 robotRBT = loadrobot("abbIrb1600")
@@ -10,8 +11,8 @@ weights = [0 0 0 1 1 1];
 %Positionen definieren
 pos = [-0.3 0.3 1.1];%nicht in einer Singularität
 pos1 = [0.15 0 1.58]; % nahe einer Singularität
-pos2 = [0.8150 0 0.9615]; % Betriebsanleitung S.56 Position 1
-%1627
+pos2 = [0.8150 0 0.9615]; % Singularität Startposition
+
 %Transformationsmatrix berechnen
 poseTF = trvec2tform(pos);
 poseTF1 = trvec2tform(pos1);

@@ -1,5 +1,5 @@
+%% 1️⃣ task6
 robot = loadrobot('abbIrb1600','DataFormat','row');
-
 analyticalIK = analyticalInverseKinematics(robot)
 showdetails(analyticalIK)
 analyticalIK.KinematicGroup
@@ -32,8 +32,8 @@ toc
 fprintf('number of solutions: %f\n', size(ikConfig,1))
 fprintf('number of solutions: %f\n', size(ikConfig1,1))
 fprintf('number of solutions: %f\n', size(ikConfig2,1))
-%%
-%Anzeigen der berechneten Konfigurationen
+
+%% 3D normale Position
 numSolutions = size(ikConfig, 1);
 for i = 1:numSolutions
     if i <= numSolutions / 2
@@ -45,7 +45,8 @@ for i = 1:numSolutions
         show(robot, ikConfig(i, :));
     end
 end
-%%
+
+%% 3D nahe einer Singularität
 numSolutions = size(ikConfig1, 1);
 for i = 1:numSolutions
     if i <= numSolutions / 2
@@ -57,10 +58,11 @@ for i = 1:numSolutions
         show(robot, ikConfig1(i, :));
     end
 end
-%%
+
+%% 3D in einer Singularität
 numSolutions = size(ikConfig2, 1);
-numRows = 2; % Anzahl der Zeilen im Subplot-Layout
-numCols = ceil(numSolutions / numRows); % Anzahl der Spalten, aufgerundet
+numRows = 2;
+numCols = ceil(numSolutions / numRows);
 
 for i = 1:numSolutions
     subplot(numRows, numCols, i);
