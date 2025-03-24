@@ -18,7 +18,9 @@ qd = qd_lang(:, 1:step:end);
 qdd = qdd_lang(:, 1:step:end);
 
 %% 3️⃣ 3D Darstellung beider Bahnkurven
-show(robotRBT,'Frames','off','PreservePlot',false); 
+fig = figure;
+show(robotRBT,'Frames','off','PreservePlot',false);
+set(fig, 'Units', 'normalized', 'OuterPosition', [0 0 1 1]);
 xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
 hold on; 
 config = homeConfig;
