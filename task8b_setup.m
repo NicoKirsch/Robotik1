@@ -1,4 +1,5 @@
-%%Erst diese Section ausführen, dann Simulink ausführen, dann fortfahren
+%Erst diese Section ausführen, dann Simulink ausführen, dann fortfahren
+%% 1️⃣ Roboter importieren & inverse Kinematik vorbereiten
 robot = importrobot('abbIrb1600.urdf');
 robotRBT = loadrobot("abbIrb1600");
 tInterval = [0 10];
@@ -7,8 +8,7 @@ homeConfig = robotRBT.homeConfiguration;
 config = homeConfig;
 numberOfSamples = 51;
 
-%%3D Animation
-% Set up plot
+%% 2️⃣  3D Darstellung der Bahnkurve
 show(robotRBT,'Frames','off','PreservePlot',true); 
 xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
 hold on; % Hold the plot to add robot visualization
@@ -30,7 +30,7 @@ end
 hold off
 
 
-%%
+%% 3️⃣ Gelenkwinkel, -geschwindigkeit & -beschleunigung plotten
 trajTimes = out.tTimes';
 
 jointVelocities = diff(jointAngles, 1, 2) ./ (trajTimes(2:end) - trajTimes(1:end-1));

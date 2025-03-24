@@ -1,14 +1,14 @@
 %%Erst diese Section ausführen, dann Simulink ausführen, dann fortfahren
-
+%% 1️⃣ Roboter importieren
 robotRBT = loadrobot("abbIrb120");
 tInterval = [0 10];
 homeConfig = robotRBT.homeConfiguration;
 config = homeConfig;
 
-TnumberOfSamples = 299;%51;
-JnumberOfSamples = 299;%51;
+TnumberOfSamples = 299;
+JnumberOfSamples = 299;
 
-%%
+%%  2️⃣ Übergabe der Simulink Parameter
 %JointSpace
 q_lang = squeeze(out.q)';
 qd_lang = squeeze(out.qd)';
@@ -24,10 +24,11 @@ qdd = qdd_lang(:, 1:step:end);
 jointAngles = zeros(6, TnumberOfSamples);
 q_T = out.config';
 
-
-%%
+%% 3️⃣ 3D Darstellung beider Bahnkurven
 % Set up plot
+fig = figure
 show(robotRBT,homeConfig,'Frames','off','PreservePlot',false); 
+set(fig, 'Units', 'normalized', 'OuterPosition', [0 0 1 1]);
 xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
 hold on;
 
@@ -45,7 +46,7 @@ for idx = 1:JnumberOfSamples
     drawnow 
 end
 
-% Return to initial configuration
+% Laden der Ursprungskonfiguration
 show(robotRBT,homeConfig,'PreservePlot',false,'Frames','off');
 config = homeConfig;
 % Plot TaskSpace
@@ -63,6 +64,6 @@ for idx = 1:TnumberOfSamples
     pause(0.01);
 end
 
-% Add a legend and title
+% Legende und Titel ergänzen
 legend([taskSpaceMarker jointSpaceMarker], {'Defined in Task-Space', 'Defined in Joint-Space'});
 title('Manipulator Trajectories')

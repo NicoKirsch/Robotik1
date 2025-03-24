@@ -1,13 +1,11 @@
-%%Erst diese Section ausführen, dann Simulink ausführen, dann fortfahren
-%robot = importrobot('abbIrb1600.urdf');
-robotRBT = loadrobot("abbIrb120"); % abbIrb1600/abbIrb120
+%Erst diese Section ausführen, dann Simulink ausführen, dann fortfahren
+%% 1️⃣ Roboter importieren
+robotRBT = loadrobot("abbIrb120");
 homeConfig = robotRBT.homeConfiguration;
-%%ik = inverseKinematics("RigidBodyTree",robotRBT);
-%%eeName = 'tool0'; 
-%%ikInitGuess = homeConfig; 
-numberOfSamples = 200;%51;
-%%
 
+numberOfSamples = 200;
+
+%%  2️⃣ Übergabe der Simulink Parameter
 
 q_lang = squeeze(out.q)';
 qd_lang = squeeze(out.qd)';
@@ -19,7 +17,7 @@ q = q_lang(:, 1:step:end);
 qd = qd_lang(:, 1:step:end);
 qdd = qdd_lang(:, 1:step:end);
 
-% Set up plot
+%% 3️⃣ 3D Darstellung beider Bahnkurven
 show(robotRBT,'Frames','off','PreservePlot',false); 
 xlim([-1.5 1.5]), ylim([-1.5 1.5]), zlim([0 2])
 hold on; 
